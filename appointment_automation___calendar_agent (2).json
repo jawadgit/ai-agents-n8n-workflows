@@ -1,0 +1,186 @@
+{
+  "name": "appointment automation - calendar agent",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a calendar agent.\nYou received the query containing event title date and time as well from {{ $json.query }}\n\nplz schedule one event on calendar keeping in mind today calendar {{ $now }}\n\nAlso take care of shift AM or PM that you receive"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        220,
+        0
+      ],
+      "id": "9f243c15-7221-4a41-821c-aa6ed1b510dc",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        140,
+        200
+      ],
+      "id": "c9259771-9322-4a70-9597-97ad702ba5f7",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "rylBwzHzryDCwY65",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "babf52c3-e758-41b3-9e2c-acb5bcca5402",
+      "name": "Called By Appointment Lead Agent"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "jawwad.nissar@gmail.com",
+          "mode": "list",
+          "cachedResultName": "jawwad.nissar@gmail.com"
+        },
+        "start": "={{ $fromAI(\"startTime\") }}",
+        "end": "={{ $fromAI(\"endTime\") }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $fromAI(\"attendee\") }}"
+          ],
+          "summary": "={{ $fromAI(\"eventTitle\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        280
+      ],
+      "id": "3b8e60ee-6239-4b51-a97c-9504aee84fc9",
+      "name": "Create Event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "UpVKJlyFQSDwG4c4",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "48ecc187-0ddf-4ba2-96f0-b433a7591170",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        580,
+        0
+      ],
+      "id": "a43a7bf0-e775-468c-8114-9af9cc49923e",
+      "name": "Response"
+    }
+  ],
+  "pinData": {
+    "Called By Appointment Lead Agent": [
+      {
+        "json": {
+          "query": "book one lunch with tim (jawwad.nissar@gmail.com) today at 04 pm "
+        }
+      }
+    ]
+  },
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Called By Appointment Lead Agent": {
+      "main": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "851f3624-c2cd-46cc-bd4b-49154d260a82",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f22dca46331c4af676681579fa3b18acddf4c7ae1f5a223f4ba28588987c9962"
+  },
+  "id": "rSvU1CoSZRkRLxYL",
+  "tags": []
+}

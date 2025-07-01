@@ -1,0 +1,565 @@
+{
+  "name": "Image Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Website Post: \n\n{{ $('When Executed by Another Workflow').item.json.content }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are an AI agent that transforms Website posts into visual prompt descriptions for generating graphic marketing materials. These visuals are designed to be paired with the post on Website, helping communicate the message in a visually engaging, brand-aligned way.\n\n## Objective:\n- Read and analyze the given website post.\n- Identify the main message, insight, or takeaway from the post.\n- Create a clear and compelling graphic prompt that can be used with a text-to-image generator.\n- The result should be a marketing-style graphic — not a literal scene or hyperrealistic photo — that:\n1) Visually supports or illustrates the key idea of the post\n2) Looks appropriate for use in a professional Website feed\n3) Feels polished, modern, and engaging\n4) background of photo should be clearly visible in google word document\n\n## Output Instructions:\n- Output only the final image prompt. Do not output quotation marks.\n- Do not repeat or rephrase the Website post.\n- Do not add any explanations or extra content — just the image prompt.\n- Never leave things blank like \"Header area reserved for customizable callout text\"\n- Output numeric stats when available in the original post\n\n## Style Guidelines:\n- Think like a brand designer or marketing creative.\n- Visuals may include: text, charts, icons, abstract shapes, overlays, modern illustrations, motion-like effects, bold typography elements (described, not rendered), or metaphorical concepts.\n- You can mention layout suggestions (e.g., \"split screen design,\" \"header with bold title and subtle background illustration\").\n- Assume the output will be generated using AI image tools — your prompt should guide those tools effectively.\n\n## Example Prompt Format:\nA modern flat-style graphic showing a human brain connected to mechanical gears, representing the fusion of AI and automation. Minimalist background, soft gradients, clean sans-serif text placement space at the top.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        740,
+        -100
+      ],
+      "id": "49382ada-3e21-490a-81e9-d133c44283ce",
+      "name": "Image Prompt Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer dummy key"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $('When Executed by Another Workflow').item.json.content }}"
+            },
+            {
+              "name": "size",
+              "value": "1024x1024"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1140,
+        -100
+      ],
+      "id": "3edb9a62-7e35-4e54-b3d6-0adacf67658f",
+      "name": "Generate Image"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data[0].b64_json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1420,
+        -100
+      ],
+      "id": "a14d49c1-853a-484a-8e4a-4499597fbb87",
+      "name": "Convert to Binary"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('When Executed by Another Workflow').item.json.title }}-Blog-Image",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "=https://drive.google.com/drive/folders/1O6Jhlp6X9eJ-gJWgedefrVybYqd_cFUk5AGp",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1600,
+        -100
+      ],
+      "id": "d8055297-bb15-497e-9ccd-99d071012342809",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "hvfbKACluVLS3jvy",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $('Google Drive').item.json.id }}/permissions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOdfgAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"role\": \"reader\",\n  \"type\": \"anyone\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1800,
+        -100
+      ],
+      "id": "e3971c6f-5324-404d-8ba1-279538fcfc7a",
+      "name": "Update Image Permission",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "hvfbKACluVLS3435gfdjvy",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        180
+      ],
+      "id": "59700a6e-bf22-49c8-9447-f79cbcbca559",
+      "name": "5 Sec Update Wait",
+      "webhookId": "c8c55954-240a-43ab-b7b1-c2723b11ec8b"
+    },
+    {
+      "parameters": {
+        "content": "# Image Prompt\n",
+        "height": 260,
+        "width": 440,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -200
+      ],
+      "id": "567b928b-7de4-4d39-a954-fd10f39a81b6",
+      "name": "Sticky Note9",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4-turbo-2024-04-09",
+          "mode": "list",
+          "cachedResultName": "gpt-4-turbo-2024-04-09"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        200
+      ],
+      "id": "497c3e79-1d6c-4e83-a3ee-58067c306ca2",
+      "name": "OpenAI Contnet",
+      "credentials": {
+        "openAiApi": {
+          "id": "LyHLRJhjdvBxFge5",
+          "name": "Jawad OpenAI Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Generate Image\n",
+        "height": 260,
+        "width": 440,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        -200
+      ],
+      "id": "7795925a-1faf-4365-a13d-8e8e10fcca14",
+      "name": "Sticky Note10",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# Upload Image\n",
+        "height": 260,
+        "width": 400,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        -200
+      ],
+      "id": "8709b170-5ac0-426d-9c67-43c0e79ff103",
+      "name": "Sticky Note11",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# Insert Image\n",
+        "height": 260,
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        80
+      ],
+      "id": "04a01690-60d8-44ba-8485-683a65fa595c",
+      "name": "Sticky Note12",
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1280,
+        160
+      ],
+      "id": "dc8b77c4-e979-4705-9166-e72087212aaa",
+      "name": "Wait2",
+      "webhookId": "8ad9ec96-93f8-4a0d-8183-810452b49440"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('When Executed by Another Workflow').item.json.document }}:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"requests\": [\n    {\n      \"insertInlineImage\": {\n        \"location\": {\n         \"index\": 1\n        },\n        \"uri\": \"https://drive.google.com/uc?id={{ $('Google Drive').all()[0].json.id }}\",\n        \"objectSize\": {\n          \"height\": {\n            \"magnitude\": 500,\n            \"unit\": \"PT\"\n          },\n          \"width\": {\n            \"magnitude\": 500,\n            \"unit\": \"PT\"\n          }\n        }\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1820,
+        160
+      ],
+      "id": "a51b73e0-84a3-4cd9-b437-0cb9afbf4994",
+      "name": "Insert Image1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "PJKL30VpzDdpwf6z",
+          "name": "Jawad Personal Google Docs Second Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -220,
+        -100
+      ],
+      "id": "6ce96d4c-5ce1-4646-b45e-f72855fe14c5",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        220,
+        -100
+      ],
+      "id": "1229959b-8d2a-4833-87d3-297889860f85",
+      "name": "Image Loop"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  { json: { loopIndex: 1 } },\n  { json: { loopIndex: 2 } }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -100
+      ],
+      "id": "81ac8532-4a86-4f4b-92b8-484a6ce4e6c3",
+      "name": "Generate Loop Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        500,
+        -160
+      ],
+      "id": "d9ee4e95-16aa-4a22-93de-e3cb51881db5",
+      "name": "Wait",
+      "webhookId": "4dcf0f66-0f82-4879-9587-6e3d5f51c18a"
+    },
+    {
+      "parameters": {
+        "content": "# Wait\n",
+        "height": 260,
+        "width": 440,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        80
+      ],
+      "id": "d31da48b-c298-4bb1-b0a4-816ec9b21775",
+      "name": "Sticky Note",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# Tool\n",
+        "height": 260,
+        "width": 440,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        640,
+        80
+      ],
+      "id": "db9589c8-75db-4a75-b4c0-ed5b732f6ed0",
+      "name": "Sticky Note1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# Image Loop\n",
+        "height": 260,
+        "width": 440,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -200
+      ],
+      "id": "40fb143b-e9b5-470d-b6ba-5acc27939bf9",
+      "name": "Sticky Note2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "# Generate Images\n",
+        "height": 260,
+        "width": 440,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -280,
+        -200
+      ],
+      "id": "af0fb825-00e0-4c07-811d-b2ac63721b29",
+      "name": "Sticky Note3",
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Image Prompt Agent": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Binary": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Update Image Permission",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Image Permission": {
+      "main": [
+        [
+          {
+            "node": "5 Sec Update Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5 Sec Update Wait": {
+      "main": [
+        [
+          {
+            "node": "Insert Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Contnet": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Prompt Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Convert to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Image1": {
+      "main": [
+        [
+          {
+            "node": "Image Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Generate Loop Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Loop": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Loop Items": {
+      "main": [
+        [
+          {
+            "node": "Image Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Image Prompt Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "71e18b6e-0dfd-48d1-9eb4-418e6d7e7ee9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a4b6e58a32e25a2294646cc41bc4cc0ef03978cee599679e8355daac8ba55678"
+  },
+  "id": "gdB6pqUafRp5ogtn",
+  "tags": []
+}

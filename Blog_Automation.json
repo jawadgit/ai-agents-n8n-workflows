@@ -1,0 +1,799 @@
+{
+  "name": "Blog Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# Title Generation",
+        "height": 260,
+        "width": 380
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        340
+      ],
+      "id": "489ff344-f99d-42c4-91db-7fb23f12e019",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Save Titles",
+        "height": 260,
+        "width": 440,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        340
+      ],
+      "id": "242d3280-578d-4b40-83be-05a7bb1d43e3",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "# Form Trigger",
+        "height": 260,
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2080,
+        340
+      ],
+      "id": "23bcaaef-009f-4ab0-898f-3c0a3a07570e",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Tool & Model",
+        "height": 260,
+        "width": 380,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        620
+      ],
+      "id": "806d8cbc-25b2-49f6-9e81-4d4fc03f28b8",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1300,
+        740
+      ],
+      "id": "bba658c6-1d7f-440d-bab7-d8c5533636c7",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "LyHLRJhjdvBxFge5",
+          "name": "Jawad OpenAI Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1uN_5UKh2RFEzLImrtuxVk3jLcl6HGATKbIY2RI6t38s",
+          "mode": "list",
+          "cachedResultName": "Blog",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uN_5UKh2RFEzLImrtuxVk3jLcl6HGATKbIY2RI6t38s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 869798830,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uN_5UKh2RFEzLImrtuxVk3jLcl6HGATKbIY2RI6t38s/edit#gid=869798830"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -1820,
+        440
+      ],
+      "id": "f47c9011-4612-40cc-8292-8da72043ba53",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0nUM3fLgVrfgdh435CDMBh7",
+          "name": "Jawad Personal Google Sheet Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1uN_5UKh2RFEzLImrtuxV453gfdsk3jLcl6HGATKbIY2RI6t38s",
+          "mode": "list",
+          "cachedResultName": "Blog",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uN_5UKh2RFEzLImrtuxVk3jLcl6HGATKbIY2RI6t38s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "titles",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uN_5UKh2RFEzLImrtuxVk3jLcl6HGATKbIY2RI6t38s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Titles": "={{ $json.row }}"
+          },
+          "matchingColumns": [
+            "Titles"
+          ],
+          "schema": [
+            {
+              "id": "Titles",
+              "displayName": "Titles",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -740,
+        440
+      ],
+      "id": "bdb21791-783c-480d-8554-34a0594b67d3",
+      "name": "Add Titles",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0nUM3fLgVrCDMBh7",
+          "name": "Jawad Personal Google Sheet Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the input data\nconst input = $input.all()[0].json.output;\n\n// Clean and process the string\nconst cleanedString = input\n  .trim()                      // Remove whitespace\n  .replace(/^\\[|\\]$/g, '')     // Remove square brackets\n  .replace(/\\\\n/g, '')         // Remove newline characters\n  .trim();                     // Trim again\n\n// Split into individual items\nconst items = cleanedString\n  .split(',')                  // Split by commas\n  .map(item => item.trim())    // Trim each item\n  .filter(item => item.length > 0);  // Remove empty items\n\n// Create Excel rows\nconst excelRows = items.map(item => {\n  // Remove any remaining curly braces if present\n  const cleanItem = item.replace(/^\\{|\\}$/g, '').trim();\n  return { json: { row: cleanItem } };\n});\n\nreturn excelRows;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -920,
+        440
+      ],
+      "id": "8e90dc0b-5fc7-41ab-a3fc-7a93b4ff59f8",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic of Post: \n{{ $json['Please Provide the topic for which long tail title needs to be created'] }}\nNo of Titles:\n{{ $json['Please mention how many title needs to be created'] }}\n\n- remove numbering from titles\ngive output in format such as \n[one, two, three]\n",
+        "options": {
+          "systemMessage": "=# Overview\nYou are an AI agent specialized in creating professional, educational, and engaging long tail keywordsbased on any topic provided by the user.\n\nCreate a list of {{ $json['Please mention how many title needs to be created'] }} blog posts titles, \nwith sales hooks and key words that reflect long tail keywords related to Topic:{{ $json['Please Provide the topic for which long tail title needs to be created'] }} and any long tail search keywords addressing higher volume search terms first.  \nCreate a compelling list of titles for blog posts.\n\n## Objectives:\nAlways begin by conducting a real-time search using the Tavily tool to gather the most accurate, up-to-date titles of the topic. \n\nBased on your research, generate a well-structured Titles that:\n- Starts with an engaging hook\n- Professional in tone\n- Clear and easy to read\n- Educational and insightful\n- Dont put comma in the title\n\n## Output Instructions:\n- Your ONLY output should be the final Titles.\n- Do not include explanations, notes, or anything beyond the titles itself.\n\n## Example Workflow:\n1) Receive a topic (e.g., “The ROI of warehouse automation”)\n2) Use Tavily to search and gather long tails titles with hugh search volumes \n3) format it in a way so i could eaily put the list into the google excel sheet"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -1300,
+        440
+      ],
+      "id": "175da8c6-e2a0-49a9-a497-bb9f9befa7d3",
+      "name": "Title Agent"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1uN_5UKh2RFEzLImrtuxV456ghfk3jLcl6HGATKbIY2RI6t38s",
+          "mode": "list",
+          "cachedResultName": "Blog",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uN_5UKh2RFEzLImrtuxVk3jLcl6HGATKbIY2RI6t38s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 869798830,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uN_5UKh2RFEzLImrtuxVk3jLcl6HGATKbIY2RI6t38s/edit#gid=869798830"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2020,
+        420
+      ],
+      "id": "d3b6b9f0-735b-4f7b-8392-51d5b073ad6d",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "yBqGJoa0qhUO2H7X",
+          "name": "Jawad Personal Google Console Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "=1K6nfh7uB8jBD1beajriK34bSGfPnSSStr2d",
+        "title": "={{ $('Loop Over Items').item.json.Titles }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -120,
+        440
+      ],
+      "id": "200fa94b-7d6b-4e92-a594-12648b29e73d",
+      "name": "Create Document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "LuLWd9LPQGyOYanq",
+          "name": "Jawad Google Docs Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic of Post:{{ $('Loop Over Items').item.json.Titles }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are an AI agent specialized in creating professional, educational, and engaging Website posts based on any topic provided by the user.\n\n## Objectives:\nAlways begin by gathering the most accurate, up-to-date information on the topic. The post should be written to appeal to the provided target audience.\n\nBased on your research, generate a well-structured website post that:\n- Starts with an engaging hook\n- Professional in tone\n- Clear and easy to read\n- Educational and insightful\n- Light on emojis (use only when highly relevant and minimal)\n- Includes proper source attribution (e.g., “according to [source]”)\n- Contains relevant hashtags to improve visibility\n- Ends with a clear call to action (e.g., asking for thoughts, feedback, or shares)\n Use simple middle school english\n- Avoid fancy jargon\n- Keep the human tone intact\n- Strictly avoid any excessive use of emojis\n- Keep the vertical length long and have short to the point horizontal points. Each individual line shouldn't be more than 15 words.\n- Add an engaging hook at the top of the post to attract maximum readers\n- Add an engaging CTA at the end of the post to have maximum comments and engagement.\n- Keep it short and sweet\n\n\n## Output Instructions:\n- Your ONLY output should be the final Website post text.\n- Do not include explanations, notes, or anything beyond the post itself.\n\n## Example Workflow:\n1) Receive a topic (e.g., “The ROI of warehouse automation”)\n2) Draft a Website post using that research\n3) Format it with source citations, clean structure, optional hashtags, and a call to action"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        280,
+        440
+      ],
+      "id": "fabc8fd2-048d-4051-b2ab-b2493fgh0264d10c",
+      "name": "Website Post Agent"
+    },
+    {
+      "parameters": {
+        "content": "# Content Generation",
+        "height": 260,
+        "width": 380,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        220,
+        340
+      ],
+      "id": "9b86f438-17ba-48a4-9361-b7041fd6ffa660",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Tool & Model",
+        "height": 260,
+        "width": 380,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        220,
+        620
+      ],
+      "id": "fc3eae92-43ee-419f-b283-78df21f7bc33",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4-turbo-2024-04-09",
+          "mode": "list",
+          "cachedResultName": "gpt-4-turbo-2024-04-09"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        280,
+        720
+      ],
+      "id": "dcade4eb-e11a-4b68-94c4-8fe4gfhdee7e9de20",
+      "name": "OpenAI Contnet",
+      "credentials": {
+        "openAiApi": {
+          "id": "LyHLRJhjdvBxFge5",
+          "name": "Jawad OpenAI Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -460,
+        440
+      ],
+      "id": "d07c85ca-8bff-4d13-86bf-31cdc725bb56",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "content": "# Blog Per Title",
+        "height": 260,
+        "width": 340,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        340
+      ],
+      "id": "87bbcfb6-2945-4ea9-bf08-5b6790b87a38",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -720,
+        700
+      ],
+      "id": "3486d556-523a-4271-9ab1-6873a70dc6ac",
+      "name": "Wait1",
+      "webhookId": "a40310b1-374c-4059-b5f0-920a22a22760"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gdB6pqUafRp5ogtn",
+          "mode": "list",
+          "cachedResultName": "Image Automation"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        440
+      ],
+      "id": "e5306686-5268-4643-9823-5da6560897ac",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "deec8634-654f-406f-8646-8824c0fa3529",
+              "name": "title",
+              "value": "={{ $('Loop Over Items').item.json.Titles }}",
+              "type": "string"
+            },
+            {
+              "id": "d764f597-5aaf-4074-8dfb-6c66802972f0",
+              "name": "content",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "ea9c837b-da9c-4f6b-b1e5-4389505c1714",
+              "name": "document",
+              "value": "={{ $('Create Document').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        660,
+        440
+      ],
+      "id": "ca0a1613-f667-4724-b4a6-e44432fg5e066b19b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('Create Document').first().json.id }}:batchUpdate\n\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ requests: $json.requests }) }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        860,
+        700
+      ],
+      "id": "0b29e8c0-7d36-4857-80f1-59e9a11435vb27d42",
+      "name": "HTTP Request",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "LuLWd9LPQGyOYanq",
+          "name": "Jawad Google Docs Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "if (! $('Website Post Agent').first().json.output ) {\n  throw new Error(\"Markdown content is missing in input.\");\n}\n\nconst markdown = $('Website Post Agent').first().json.output;\nconst lines = markdown.split('\\n');\nconst requests = [];\n\nlet currentIndex = 1;\n\n// Extract plain text and links from markdown\nfunction extractLinksAndText(text) {\n  const matches = [];\n  let match;\n  const regex = /\\[([^\\]]+)\\]\\((.*?)\\)/g;\n\n  while ((match = regex.exec(text)) !== null) {\n    matches.push({\n      text: match[1],\n      url: match[2],\n      start: match.index,\n      end: match.index + match[1].length,\n    });\n  }\n\n  let plainText = text.replace(/\\[([^\\]]+)\\]\\((.*?)\\)/g, '$1');\n  return { plainText, links: matches };\n}\n\n// Strip inline markdown (except links)\nfunction stripInlineMarkdown(text) {\n  return text\n    .replace(/\\*\\*(.*?)\\*\\*/g, '$1')     // bold\n    .replace(/\\*(.*?)\\*/g, '$1')         // italic\n    .replace(/__(.*?)__/g, '$1')         // bold (underscore)\n    .replace(/_(.*?)_/g, '$1')           // italic (underscore)\n    .replace(/`(.*?)`/g, '$1')           // inline code\n    .replace(/!\\[.*?\\]\\(.*?\\)/g, '');    // images\n}\n\nfor (let line of lines) {\n  line = line.trim();\n  if (line === '') {\n    requests.push({\n      insertText: {\n        location: { index: currentIndex },\n        text: '\\n',\n      },\n    });\n    currentIndex += 1;\n    continue;\n  }\n\n  let rawText = '';\n  let style = null;\n\n  if (/^# /.test(line)) {\n    rawText = line.replace(/^# /, '');\n    style = 'TITLE';\n  } else if (/^## /.test(line)) {\n    rawText = line.replace(/^## /, '');\n    style = 'HEADING_2';\n  } else if (/^### /.test(line)) {\n    rawText = line.replace(/^### /, '');\n    style = 'HEADING_3';\n  } else if (/^[-*+] /.test(line)) {\n    rawText = line.replace(/^[-*+] /, '');\n\n    const { plainText, links } = extractLinksAndText(rawText);\n    const cleanText = stripInlineMarkdown(plainText) + '\\n';\n\n    requests.push({\n      insertText: {\n        location: { index: currentIndex },\n        text: cleanText,\n      },\n    });\n\n    // Safely add links\n    for (const link of links) {\n      const start = currentIndex + link.start;\n      const end = start + link.text.length;\n\n      if (start < end) {\n        requests.push({\n          updateTextStyle: {\n            range: { startIndex: start, endIndex: end },\n            textStyle: { link: { url: link.url } },\n            fields: 'link',\n          },\n        });\n      }\n    }\n\n    // Safely apply bullet\n    const bulletEnd = currentIndex + cleanText.length;\n    if (bulletEnd > currentIndex) {\n      requests.push({\n        createParagraphBullets: {\n          range: {\n            startIndex: currentIndex,\n            endIndex: bulletEnd,\n          },\n          bulletPreset: 'BULLET_DISC_CIRCLE_SQUARE',\n        },\n      });\n    }\n\n    currentIndex += cleanText.length;\n    continue;\n  } else {\n    rawText = line;\n  }\n\n  const { plainText, links } = extractLinksAndText(rawText);\n  const cleanText = stripInlineMarkdown(plainText) + '\\n';\n\n  requests.push({\n    insertText: {\n      location: { index: currentIndex },\n      text: cleanText,\n    },\n  });\n\n  if (style) {\n    const end = currentIndex + cleanText.length;\n    if (end > currentIndex) {\n      requests.push({\n        updateParagraphStyle: {\n          range: {\n            startIndex: currentIndex,\n            endIndex: end,\n          },\n          paragraphStyle: {\n            namedStyleType: style,\n          },\n          fields: 'namedStyleType',\n        },\n      });\n    }\n  }\n\n  for (const link of links) {\n    const start = currentIndex + link.start;\n    const end = start + link.text.length;\n\n    if (start < end) {\n      requests.push({\n        updateTextStyle: {\n          range: { startIndex: start, endIndex: end },\n          textStyle: { link: { url: link.url } },\n          fields: 'link',\n        },\n      });\n    }\n  }\n\n  currentIndex += cleanText.length;\n}\n\nreturn [{ json: { requests } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        740
+      ],
+      "id": "7878e643-be55-430e-b756-c6fb44609f3e",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = items;\nconst lastRow = rows[rows.length - 1]; // Get the last item\n\nreturn [lastRow];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1640,
+        440
+      ],
+      "id": "2d51d007-1d21-42c6-90a8-56c7214baf5d",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "content": "# Pick New Topic",
+        "height": 260,
+        "width": 280,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1660,
+        340
+      ],
+      "id": "c9ede312-300b-43fa-aa81-d17866704d50",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "# Create Document",
+        "height": 260,
+        "width": 340,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        340
+      ],
+      "id": "2cd69b08-ec24-4a67-8d49-675a1ccb35ed",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        440
+      ],
+      "id": "ee995e19-1577-48e2-b594-c7e30d8ae478",
+      "name": "Wait",
+      "webhookId": "a40310b1-374c-4059-b5f0-920a22a22760"
+    },
+    {
+      "parameters": {
+        "content": "# Generate Image",
+        "height": 260,
+        "width": 400,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        620,
+        340
+      ],
+      "id": "54da8d25-3e61-43ee-b978-bf5c2fbf109d",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "# Insert Content",
+        "height": 260,
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        620,
+        620
+      ],
+      "id": "88382eff-13c9-4fdb-bc43-08be1ec79a46",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "# Wait",
+        "height": 260,
+        "width": 440,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        620
+      ],
+      "id": "b08a1a62-d174-4cc0-9598-528180077b64",
+      "name": "Sticky Note12"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Title Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Add Titles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Title Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Titles": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Document": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website Post Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Contnet": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Website Post Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Create Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Title Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Website Post Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "765a89c6-eec5-4b4a-b611-8ad48c14c456",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a4b6e58a32e25a2294646cc41bc4cc0ef03978cee599679e8355daac8ba55678"
+  },
+  "id": "SbueCh5rmrIFohqd",
+  "tags": []
+}

@@ -1,0 +1,299 @@
+{
+  "name": "university admission agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "appointment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "742d4144-2c56-4cd1-9af8-8e3cf37e3e47",
+      "name": "elevenlabs",
+      "webhookId": "7384933d-40b4-4337-b270-78df6b59935a"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4773a676-cf09-4fed-b0f8-37a93d9826ae",
+              "name": "name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "866accfa-b5cc-4ab4-a5a7-0d7b0cb086bb",
+              "name": "email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "8217c1f6-3e4e-4c54-8515-286609b342cc",
+              "name": "date",
+              "value": "={{ $json.body.date }}",
+              "type": "string"
+            },
+            {
+              "id": "65c14df1-c65e-4a6a-9636-47996901ae43",
+              "name": "event",
+              "value": "={{ $json.body.event }}",
+              "type": "string"
+            },
+            {
+              "id": "e137a990-e061-42f1-a0d9-ef4ae6fd33fa",
+              "name": "date",
+              "value": "={{ $json.body.date }}",
+              "type": "string"
+            },
+            {
+              "id": "2a85059a-b43b-429b-9409-78c040f55fd6",
+              "name": "time",
+              "value": "={{ $json.body.time }}",
+              "type": "string"
+            },
+            {
+              "id": "212afe3c-11e9-48a5-a9e4-7b660b21ac2f",
+              "name": "shift",
+              "value": "={{ $json.body.shift }}",
+              "type": "string"
+            },
+            {
+              "id": "8f9cadfe-af67-47d8-bf98-02e23e38b11a",
+              "name": "contact",
+              "value": "={{ $json.body.contact }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "id": "4c2658e4-de1b-4ab3-843c-a0a9f954715f",
+      "name": "Map Data"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Name: {{ $json.name }}\nEmail: {{ $json.email }}\nEvent: {{ $json.event }}\nDate: {{ $json.date }}\ntime : {{ $json.time }}\ncontact : {{ $json.contact }}\nTime: {{ $json.time }}\nShift : {{ $json.shift }}\nContact: {{ $json.contact }}\n\n\n\n",
+        "options": {
+          "systemMessage": "=You are a Lead Agent:\nyou received lead details from provious node \n\nEvent Details:\n\nName: {{ $json.name }}\nEmail: {{ $json.email }}\nEvent: {{ $json.event }}\nDate: {{ $json.date }}\nTime: {{ $json.time }}\nShift : {{ $json.shift }}\nContact: {{ $json.contact }}\n\n\nFirstly send the above details to the Calendar Agent to schedule a new appointment. \nAs soon as you receive the response from calendar agent,  create one profesisonal email by following the below instructions\n\nConvert the raw email into a professional plain-text format. Follow these rules strictly:\n\n1. **Remove ALL markdown**: No bold (`**`), dashes (`---`), or brackets (`[]`). Use hyphens (-) for bullets.\n2. **Timezone**: Abbreviate (e.g., PKT, not Pakistan Standard Time).\n3. **Avoid redundancy**: Do NOT use \"successfully scheduled\" or \"you can view the event.\"\n4. **Structure**:\n     - Body:  \n     - Greeting: \"Dear [Name],\"  \n     - Confirmation: \"We are pleased to confirm your [Event Name].\"  \n     - Details (hyphenated bullets):  \n       - Event: [Name]  \n       - Date: [Day, Date] (e.g., Sunday, 30th March 2025)  \n       - Time: [Start]-[End] [Timezone] (e.g., 4:16-5:16 PM PKT)  \n       - Shift : AM / PM\n       - Calendar Link: Add to Google Calendar: [URL]  \n     - Closing: \"For questions, contact [email/phone].\"  \nBest regards, \n  Jawad Nisar\n  AI Automation\n  AYB \n  +1-555-7894\n\nExample Output:  \n\nDear a,  \nWe are pleased to confirm your meeting. Below are the details:  \n- Event: Meeting  \n- Date: Sunday, 30th March 2025  \n- Time: 4:16-5:16 PM PKT  \n- Calendar Link: Add to Google Calendar: https://...  \nFor questions, contact [email/phone].  \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        440,
+        0
+      ],
+      "id": "d312c3ae-3a73-4b80-a559-d04c56b6cc13",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('elevenlabs').all() }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        520,
+        220
+      ],
+      "id": "fecd99c6-0e2d-404f-8b18-c04d60a343a3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        380,
+        220
+      ],
+      "id": "4f6831b3-e4d6-4f0c-908e-6f957ea2c615",
+      "name": "GPT",
+      "credentials": {
+        "openAiApi": {
+          "id": "rylBwzHzryDCwY65",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "calendarAgent",
+        "description": "=call this tool and book event on calendar with details mentioned below \nname : {{ $('Map Data').item.json.name }}\nemail : {{ $('Map Data').item.json.email }}\nevent : {{ $('Map Data').item.json.event }}\ndate : {{ $('Map Data').item.json.date }}\ncontact : {{ $('Map Data').item.json.contact }}\ntime : {{ $('Map Data').item.json.time }}",
+        "workflowId": {
+          "__rl": true,
+          "value": "rSvU1CoSZRkRLxYL",
+          "mode": "list",
+          "cachedResultName": "appointment automation - calendar agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        220
+      ],
+      "id": "60ac89e5-cda4-4753-9bf7-576ca4a06996",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "sendTo": "jawwad.nissar@gmail.com",
+        "subject": "Your Appointment Details",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        840,
+        0
+      ],
+      "id": "b48fd61c-3704-4254-967d-d3c3c53c9304",
+      "name": "Send Message",
+      "webhookId": "6d662c17-fd65-4ba2-8ed3-a547ffa4c416",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jqQzUnBpdh1JXObA",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1060,
+        0
+      ],
+      "id": "813cdeb0-233b-42b4-94ce-4ced16ad90cb",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "elevenlabs": {
+      "main": [
+        [
+          {
+            "node": "Map Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Data": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2f1a2a18-4ae9-4b43-a380-abda03be5ce7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f22dca46331c4af676681579fa3b18acddf4c7ae1f5a223f4ba28588987c9962"
+  },
+  "id": "Jyc4JtCDBdP2JVOI",
+  "tags": []
+}
