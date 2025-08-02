@@ -1,0 +1,1509 @@
+{
+  "name": "WhatsApp Demo Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1540,
+        -1340
+      ],
+      "id": "a749ecd3-42fb-4ef0-83e6-ba1d11ba4ba8",
+      "name": "WhatsApp Trigger",
+      "webhookId": "c99f8cac-3b0c-4ad2-93cc-07e6fe6bd7c3",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "JvmOd37gkS5PqOFU",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "messages",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1320,
+        -1340
+      ],
+      "id": "6e13564b-ec4b-49a9-9dee-00e46a8b8072",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.audio.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -1520
+      ],
+      "id": "18d1e5bd-12e7-41aa-b880-96835e940a48",
+      "name": "Get Audio URL",
+      "webhookId": "e52a758c-d184-4395-8c21-f3f6405070dc",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "A2PPs1iLsKScoCI4",
+          "name": "WhatsApp Personal Access Token And BusinessAccount ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "df337e08-445c-45af-8f69-1b6e2c3750c9",
+                    "leftValue": "={{ $json.type == 'audio' && Boolean($json.audio) }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio Message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c603df03-589d-472c-b022-df7a0cb9349d",
+                    "leftValue": "={{ $json.type == 'video' && Boolean($json.video) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Video Message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d2818c5f-7608-4fa2-909a-d4c72b542c99",
+                    "leftValue": "={{ $json.type == 'image' && Boolean($json.image) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Image Message"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Text Message"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1180,
+        -1380
+      ],
+      "id": "4c1e1483-fe24-440f-b437-74645cad52a0",
+      "name": "Identify And ReRoute Message Types"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -580,
+        -1520
+      ],
+      "id": "9984a5e8-49c7-4fd3-b4cf-0a466f7925de",
+      "name": "Download Audio",
+      "retryOnFail": false,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "A2PPs1iLsKScoCI4",
+          "name": "WhatsApp Personal Access Token And BusinessAccount ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "translate",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -400,
+        -1520
+      ],
+      "id": "da720cf0-15ad-4630-9c9c-27f1adc36337",
+      "name": "Transcribe Audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "5v2xaNEHtMTnqCJr",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "27cfa00c-d6f8-43f5-9420-f26d2a9eb423",
+              "name": "message_text",
+              "value": "={{ \n  $('Split Out').item.json.type === 'audio'\n    ? $json.text\n    : (\n        $('Split Out').item.json.type === 'text'\n          ? $json.text.body\n          : ''\n      )\n}}",
+              "type": "string"
+            },
+            {
+              "id": "4e1ecd68-0b23-416b-b2ff-8674ba2b41c9",
+              "name": "message_type",
+              "value": "={{ $('Split Out').item.json.type }}",
+              "type": "string"
+            },
+            {
+              "id": "87617f4b-fad9-40e9-8e8c-b57cf26d707e",
+              "name": "message_from",
+              "value": "={{ $('Split Out').item.json.from }}",
+              "type": "string"
+            },
+            {
+              "id": "4d6995d9-d4e2-4c49-a622-0a4fa443e6b2",
+              "name": "message_caption",
+              "value": "={{\n  $('Identify And ReRoute Message Types').item.json.type === 'image'\n    ? ($('Identify And ReRoute Message Types').item.json.image?.caption || '')\n    : (\n        $('Identify And ReRoute Message Types').item.json.type === 'video'\n          ? ($('Identify And ReRoute Message Types').item.json.video?.caption || '')\n          : ''\n      )\n}}",
+              "type": "string"
+            },
+            {
+              "id": "f840e88a-cc5f-409d-8dcf-f26c6e02fbdb",
+              "name": "message_description",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        -880
+      ],
+      "id": "df2021ff-1a34-4fb2-9739-75e36ee052b8",
+      "name": "Get Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "=define",
+        "text": "={{ \n  $('Get Fields').item.json.message_type === 'image'\n    ? 'Please output the following information as bullet points:\\n- message caption: ' + ($('Get Fields').item.json.message_caption || '') + '\\n- message description: ' + ($('Get Fields').item.json.message_description || '') + '\\nOnly output the bullet points, nothing else.'\n    : (\n        ($('Get Fields').item.json.message_type === 'audio' || $('Get Fields').item.json.message_type === 'text')\n          ? 'TOOLS\\n---\\n{tools}\\n\\nYou are an assistant that can use the above tools to help the user. Use tools when needed to answer the user\\'s request.\\n\\nUSER INPUT\\n---\\n' + ($('Get Fields').item.json.message_text || '') + '\\n\\n{format_instructions}'\n          : ''\n      )\n}}",
+        "options": {
+          "systemMessage": "=### Postgres Database Read, Update, Delete Operations\n you must use tool 'Postgres Read Workflow' for Read operation and also before before 'Create Product' and 'Delete Product'. \n\n### Transfer Output\nYou must pass on the output from tool \"Postgres Read Workflow\" to tools \"Update Product\" and \"Delete Product\".\n\n### Postgres Database Create Operation\n you have tool 'Create Product'. Just use this tool for Create operation whenever needed.\n\n### Google Calendar Read, Create Event \nYou must use tool \"Date & Time\" from {tools} before using \"Read Events\" or \"Create Event\". If you need to use tool \"Create Event\", you must use this tool after \"Date & Time\" tool, and then after always use \"Create Email\" tool.\n\n### Read Events, Create Events, Read Emails, Create Email\nYou must use tool \"Get Many Google Contacts\" first from {tools} before using any of tools \"Read Events\", \"Create Events\", \"Read Emails\", \"Create Email\"\n\n### Output\nit should be in English only",
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        -1340
+      ],
+      "id": "c8f9772c-fec3-425f-a69e-6b016865c925",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -20,
+        -220
+      ],
+      "id": "a4217a6b-29c7-4c4b-a867-8ee4b948fa46",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "5v2xaNEHtMTnqCJr",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.image.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -1340
+      ],
+      "id": "d267ab5c-7638-4c3f-8de3-5ebb08a3a46f",
+      "name": "Get Image URL",
+      "webhookId": "75c36a7e-1fd0-4e61-a38d-f1db3f422000",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "A2PPs1iLsKScoCI4",
+          "name": "WhatsApp Personal Access Token And BusinessAccount ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -580,
+        -1340
+      ],
+      "id": "30151419-5856-4a19-9003-ae05e9e40c86",
+      "name": "Download Image",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "A2PPs1iLsKScoCI4",
+          "name": "WhatsApp Personal Access Token And BusinessAccount ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "=User has sent you an image inside data field. Describe this image in simple terms ",
+        "inputType": "base64",
+        "simplify": false,
+        "options": {
+          "detail": "auto"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -400,
+        -1340
+      ],
+      "id": "3a1df199-a45d-43e8-b71b-cf9d2020b763",
+      "name": "Analyze Image",
+      "credentials": {
+        "openAiApi": {
+          "id": "5v2xaNEHtMTnqCJr",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Get Fields').item.json.message_from }}",
+        "contextWindowLength": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        140,
+        -220
+      ],
+      "id": "1f3f31aa-45c9-4f70-91e7-83176c643f06",
+      "name": "Simple Memory",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "contactmahmoodnawaz@gmail.com",
+          "mode": "list",
+          "cachedResultName": "contactmahmoodnawaz@gmail.com"
+        },
+        "limit": "={{ $fromAI('Limit', `the maximum amount of events to retrieve`, 'number') }}",
+        "timeMin": "={{ $fromAI('After') }}",
+        "timeMax": "={{ $fromAI('Before') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        940,
+        -220
+      ],
+      "id": "9e7ce961-4e4c-4534-addf-f7251c9a1f83",
+      "name": "Read Events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1JdivdLhAvz26wBB",
+          "name": "Google-Console-WatsApp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "contactmahmoodnawaz@gmail.com",
+          "mode": "list",
+          "cachedResultName": "contactmahmoodnawaz@gmail.com"
+        },
+        "start": "={{ $fromAI('Start', `This Start time of event is in ISO format`, 'string') }}",
+        "end": "={{ $fromAI('End', `The End time of event is in ISO format`, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $fromAI('attendees', `Email addresses of attendees(comma-separated)`, 'string') }}"
+          ],
+          "description": "={{ $fromAI('Description', `Specify Details or Agenda of event`, 'string') }}",
+          "summary": "={{ $fromAI('Summary', `Specify the Title of event`, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1060,
+        -220
+      ],
+      "id": "2a23f0bb-87ca-41b1-9fd5-b0cbcd16d17b",
+      "name": "Create Event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "1JdivdLhAvz26wBB",
+          "name": "Google-Console-WatsApp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": "={{ $fromAI('Limit', `The number of emails to retrieve, max 3`) }}",
+        "filters": {
+          "readStatus": "unread",
+          "receivedAfter": "={{ $fromAI('Received_After', `retrieve emails after the one second less than date and time specified by user if any, else after the one second less than today`, 'string') }}",
+          "receivedBefore": "={{ $fromAI('Received_Before', `retrieve emails before one second greater than date and time specified by user if any, else before the one second greater than today`, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1260,
+        -220
+      ],
+      "id": "24634285-96ad-45f1-b90e-6e13f3d3266e",
+      "name": "Read Emails",
+      "webhookId": "24081145-8b73-4b28-9c04-37a5ed553ead",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "c9SRlgKre9MUhubL",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI('To', `The recepient of the email`, 'string') }}",
+        "subject": "={{ $fromAI('Subject', `The subject of the email`, 'string') }}",
+        "emailType": "text",
+        "message": "={{ $fromAI('Message', `The content of the email message`, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1400,
+        -220
+      ],
+      "id": "0c3e690e-5602-4402-b073-16ae2e91ee3e",
+      "name": "Create And Approve Email",
+      "webhookId": "9228bbfd-abb5-41be-a2ae-5d28acc1931c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "94gK3aHeauSHMvAW",
+          "name": "Gmail account 1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "query": "={{ $fromAI('Query', `You have to browse the internet and find out appropriate answer to the query of user`, 'string') }}",
+        "options": {
+          "topic": "general",
+          "search_depth": "basic",
+          "max_results": 3,
+          "include_answer": "basic"
+        }
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        -220
+      ],
+      "id": "019346b0-7fcf-4465-906e-b29342ab3d36",
+      "name": "Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "dgBiEsKFvqN5Tl7v",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "phoneNumberId": "704519072736340",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        -1200
+      ],
+      "id": "69ab94f4-80d2-4bf3-9c46-db3adfef3e50",
+      "name": "WhatsApp Business Cloud",
+      "webhookId": "f70e5d74-2ccd-4edc-b27d-e67005b03be6",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "A2PPs1iLsKScoCI4",
+          "name": "WhatsApp Personal Access Token And BusinessAccount ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $json.output }}",
+        "options": {
+          "response_format": "opus"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1560,
+        -1200
+      ],
+      "id": "b8b7c653-1682-4229-b422-677dcdada85e",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "5v2xaNEHtMTnqCJr",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "704519072736340",
+        "recipientPhoneNumber": "+923349047707",
+        "messageType": "audio",
+        "mediaPath": "useMediaId",
+        "mediaId": "={{ $json.id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1960,
+        -1200
+      ],
+      "id": "22315741-d109-4b99-bad7-a929c28298ae",
+      "name": "WhatsApp Business Cloud1",
+      "webhookId": "4bb3b8ad-dd96-4b7e-83b1-44af06ed8444",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "A2PPs1iLsKScoCI4",
+          "name": "WhatsApp Personal Access Token And BusinessAccount ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        300,
+        -220
+      ],
+      "id": "75b5995e-8224-44f9-b7ec-b4beec94e530",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "fields": [
+          "emailAddresses"
+        ],
+        "useQuery": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Query', ``, 'boolean') }}",
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleContactsTool",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -220
+      ],
+      "id": "f866a065-fd37-4443-8920-854aec353856",
+      "name": "Get Many Google Contacts",
+      "credentials": {
+        "googleContactsOAuth2Api": {
+          "id": "UmKNG38iw3DHiJWv",
+          "name": "Jawad Google Contacts Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e5549ff0-e82f-4c02-95c8-c6a517022af2",
+              "leftValue": "={{ ['Read_Events', 'Read_Emails'].includes($json.intermediateSteps[$json.intermediateSteps.length - 1].action.tool) }}",
+              "rightValue": "Tavily",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b06a546e-f6ea-4ced-b97d-94cc5f078081",
+              "leftValue": "={{ $json.intermediateSteps[$json.intermediateSteps.length - 1].action.tool == 'Tavily' && $json.output.split(/\\s+/).filter(x => x).length > 100 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        -1320
+      ],
+      "id": "b15eb689-124e-4604-b2a9-b84500cdc87e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "704519072736340",
+        "recipientPhoneNumber": "+923349047707",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        -1440
+      ],
+      "id": "b6f3ecbf-81ea-4a0b-88c2-0f04788cedf6",
+      "name": "WhatsApp Business Cloud2",
+      "webhookId": "e5a3721e-2c41-482c-8b70-e409a53be29d",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "A2PPs1iLsKScoCI4",
+          "name": "WhatsApp Personal Access Token And BusinessAccount ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "push"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1320,
+        -260
+      ],
+      "id": "bc92f828-3ebc-41a3-89c6-a82b52cb7785",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "586CqKJWpP4BoCUt",
+          "name": "Redis account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "products",
+          "mode": "list",
+          "cachedResultName": "products"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "p_price": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('p_price', ``, 'number') }}",
+            "p_quantity": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('p_quantity', ``, 'number') }}",
+            "p_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('p_name', ``, 'string') }}",
+            "p_description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('p_description', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "p_name",
+              "displayName": "p_name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "p_price",
+              "displayName": "p_price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "p_description",
+              "displayName": "p_description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "p_quantity",
+              "displayName": "p_quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1720,
+        -220
+      ],
+      "id": "0a249fa4-91c0-4e3e-83f6-b3a5278500b9",
+      "name": "Create Product",
+      "credentials": {
+        "postgres": {
+          "id": "8sLAG1ktfzXhmFhp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "products",
+          "mode": "list",
+          "cachedResultName": "products"
+        },
+        "limit": 1,
+        "where": {
+          "values": [
+            {
+              "column": "p_name",
+              "value": "={{ $('Information Extractor').item.json.output.p_original_name }}"
+            }
+          ]
+        },
+        "options": {
+          "outputColumns": [
+            "*"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1840,
+        -220
+      ],
+      "id": "c59727e4-00df-4f88-9ad9-233cf90a41f6",
+      "name": "Read Product",
+      "credentials": {
+        "postgres": {
+          "id": "8sLAG1ktfzXhmFhp",
+          "name": "Postgres account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete the row in a table in Postgres based on id generated from tool \"Postgres Read Workflow\"..",
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "products",
+          "mode": "list",
+          "cachedResultName": "products"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "id",
+              "value": "={{ $fromAI('values0_Value', ``, 'number') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        2080,
+        -220
+      ],
+      "id": "026647a7-fc05-4dfa-9e0f-535efe347665",
+      "name": "Delete Product",
+      "credentials": {
+        "postgres": {
+          "id": "8sLAG1ktfzXhmFhp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.message_text }}",
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\n  \"p_original_name\": \"chair\",\n  \"p_name\": \"table\",\n  \"p_price\": 500,\n \"p_quantity\": 10,\n\"p_description\": \"this chair is used for programmers mostly\"\n}",
+        "options": {
+          "systemPromptTemplate": "=You are an expert extraction algorithm.\nExtract the product name as \"p_name\", the price as \"p_price\", product quantity as p_quantity, and the product description as \"p_description\" from the provided text. If any field is missing, return it as null.\n\n### Rules\nIf a field is not explicitly mentioned in the input text, you must return it as null. You must avoid guessing or inventing any values. You must use information that is directly present in the input text."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        420,
+        -1120
+      ],
+      "id": "4ffecad3-6c39-4db1-8345-4d742f2fa0a4",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Update rows in a table in Postgres based on id generated from tool \"Postgres Read Workflow\"..",
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "products",
+          "mode": "list",
+          "cachedResultName": "products"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "p_price": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('p_price', ``, 'number') }}",
+            "p_quantity": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('p_quantity', ``, 'number') }}",
+            "id": "={{ $fromAI('id__using_to_match_', ``, 'number') }}",
+            "p_name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('p_name', ``, 'string') }}",
+            "p_description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('p_description', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "p_name",
+              "displayName": "p_name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "p_price",
+              "displayName": "p_price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "p_description",
+              "displayName": "p_description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "p_quantity",
+              "displayName": "p_quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        1960,
+        -220
+      ],
+      "id": "641a826c-4c06-4b1f-a026-8069bf27a97e",
+      "name": "Update Product",
+      "credentials": {
+        "postgres": {
+          "id": "8sLAG1ktfzXhmFhp",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to execute only Read operation in postgres database",
+        "workflowId": {
+          "__rl": true,
+          "value": "tuTrVTJ05XQCAfMv",
+          "mode": "list",
+          "cachedResultName": "Postgres Workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "informationExtractorOutput": "={{ $('Information Extractor').item.json.output }}",
+            "sessionId": "={{ $('Get Fields').item.json.message_from }}",
+            "chatInput": "={{ $fromAI('chatInput', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "informationExtractorOutput",
+              "displayName": "informationExtractorOutput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            },
+            {
+              "id": "chatInput",
+              "displayName": "chatInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        -220
+      ],
+      "id": "7ec38a6e-efb3-419a-8480-f50e6d6a96ac",
+      "name": "Postgres Read Workflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e5549ff0-e82f-4c02-95c8-c6a517022af2",
+              "leftValue": "={{ $json.message_type == 'image'}}",
+              "rightValue": "Tavily",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        -1180
+      ],
+      "id": "12afa428-3c0d-4c46-a67b-a35358f4e0e3",
+      "name": "If1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Identify And ReRoute Message Types",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify And ReRoute Message Types": {
+      "main": [
+        [
+          {
+            "node": "Get Audio URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Get Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Audio URL": {
+      "main": [
+        [
+          {
+            "node": "Download Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Audio": {
+      "main": [
+        [
+          {
+            "node": "Get Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Fields": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image URL": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Analyze Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Image": {
+      "main": [
+        [
+          {
+            "node": "Get Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Events": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Emails": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create And Approve Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Business Cloud": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Many Google Contacts": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Business Cloud2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Product": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Product": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Product": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Product": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Read Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c0e62e7f-06f7-4ed8-80a1-71880be01bc5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5852ddf4bceac0ee4c7179aa0b4d7d131c87f779fca72b48cf79b5ee028cd149"
+  },
+  "id": "IQZhSjXMAAORKLjg",
+  "tags": []
+}
