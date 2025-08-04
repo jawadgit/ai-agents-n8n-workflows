@@ -3,19 +3,23 @@
 - configure Open AI Key 
 - Configure WhatsApp Business via Meta 
 - Run the wrokflow and see the result 
+- See youtube for details https://youtu.be/6iCQcbGTfbY
 
 # Unlimited Blog Automation
 - Import `Blog_Automation.json` and `Image_Automation.json` file into your n8n portal
 - configure Open AI Key and Google Console Cloud App Secret
 - Run the wrokflow and see the result 
+- See youtube for details https://youtu.be/m8lCD2-aEvU
 
 # LinkedIn Post Automation
 - Import `linkedin_post_automation.json` file into your n8n portal
 - configure Open AI Key and Google Console Cloud App Secret and LinkedinIn Secret 
 - Run the wrokflow and see the result 
+- See youtube for details https://youtu.be/sXUWLoid8z4
 
 # Book An Appointment Automation
 - Import `appointment_automation___calendar_agent.json` and `university_admission_agent.json` file into your n8n portal
 - configure Open AI Key and Eleven Labs Secret
 - Run the wrokflow and see the result 
+- See youtube for details https://youtu.be/hVfuKvU4J_w
 
