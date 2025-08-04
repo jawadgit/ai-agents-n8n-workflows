@@ -1,3 +1,9 @@
+# WhatsApp Personal Assistant
+- Import `WhatsApp_Demo_Workflow_N8N.json` file into your n8n portal
+- configure Open AI Key 
+- Configure WhatsApp Business via Meta 
+- Run the wrokflow and see the result 
+
 # Unlimited Blog Automation
 - Import `Blog_Automation.json` and `Image_Automation.json` file into your n8n portal
 - configure Open AI Key and Google Console Cloud App Secret
