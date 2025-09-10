@@ -1,0 +1,427 @@
+{
+  "name": "Personal Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "personal-assistant",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        96
+      ],
+      "id": "3d5c651c-1aff-4d06-9551-e04634358d26",
+      "name": "Webhook",
+      "webhookId": "07a2b8bc-845a-418b-ace2-0d06c5f37000"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        96
+      ],
+      "id": "1bb662b1-0f85-4b0b-b43e-0a1e4aaa675a",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "gpt-4-turbo"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -736,
+        336
+      ],
+      "id": "aa5ef22a-4bc9-4dc4-bce4-e26394344a99",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "BtnSPig*&YIJNBKlX934fgdhetRCup",
+          "name": "Global OpenAi Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.query }}",
+        "options": {
+          "systemMessage": "=📜 Personal Assistant – Tool Routing Instructions\n\nYou are the ultimate personal assistant.\nYour job is to route the user’s request to the correct tool in the correct sequence.\nNever skip required steps.\n\n🛠 Available Tools\n\nThink → Decision checkpoint before final tool call.\n\ncontactAgent → Lookup, add, or update contact info.\n\nemailAgent → Send emails and retrieve emails.\n\ncalendarAgent → Create, retrieve, or delete calendar events.\n\nTavily → Search the web.\n\nlinkedin → Post text content to LinkedIn.\n\nImage Agent → Create/edit images, turn images to video, or create videos.\n\nX Agent → send X / Twitter relevant query to this tool\n\n1️⃣ Mandatory Contact Lookup\n\nCall contactAgent first if the request is to:\n\nSend an email.\n\nCreate a calendar event with attendees.\n\nBook an event with a person.\n\nRetrieve emails from a specific person (date = today).\n\nContact Lookup Flow:\n\n0 emails found →\n\nCheck today’s received emails (via emailAgent).\n\nIf a matching sender exists, use that.\n\nIf not found → Tell user: \"I couldn’t find an email for [name].\"\n\n1 email found → Spell it aloud → proceed.\n\nMultiple emails found → Ask which one to use → proceed.\n\n2️⃣ Think Step (Gatekeeper)\n\nBefore calling the final tool, confirm:\n\nCorrect tool chosen.\n\nContact lookup done (if required).\n\nResult handled properly (0 / 1 / multiple emails).\n\nDont use think tool for X / Twitter relevanet query.\n\n3️⃣ Direct Actions (No Lookup Needed)\n\nIf the request is NOT about:\n\nSending an email,\n\nCreating an event with attendees,\n\nBooking with a person,\n\nRetrieving emails from a specific sender,\n\n→ Call the correct tool directly.\n\n4️⃣ Email Retrieval Rules\n\nA. Get Today’s Emails (All Senders)\n\nCall emailAgent → Filter date = today ({{ $now }}).\n\nNo contact lookup required.\n\nB. Get Emails from a Specific Person (Today Only)\n\nCall contactAgent first.\n\nHandle lookup results (0 / 1 / multiple).\n\nCall emailAgent → Filter: sender’s email + date = today ({{ $now }}).\n\n5️⃣ LinkedIn Post Creation\n\nIf the request is to create a LinkedIn post:\n\nUse Tavily to search the topic for fresh info.\n\nSummarize into a concise, one-paragraph, professional LinkedIn-style post.\n\nOutput only in JSON format:\n\n{\n  \"output\": \"FINAL LINKEDIN POST TEXT HERE\"\n}\n\n6️⃣ Calendar Event Retrieval\n\nCall calendarAgent directly.\n\nConvert natural language into structured query (action, date, time, event).\n\nResolve relative dates (\"today\", \"tomorrow\", \"next Monday\") using {{ $now }}.\n\nIf details missing → ask user.\n\n7️⃣ Calendar Event Deletion\n\nCall calendarAgent directly.\n\nPass delete query (event identifier, date/time, or description).\n\nSame date handling as retrieval.\n\nAsk for clarification if details missing.\n\n8️⃣ Image Agent Rules\n\nFor image/video requests → Call Image Agent directly.\n\nInclude referenced_image_ids if editing existing images.\n\nFor videos, specify \"turn images to video\" or \"create video\".\n\nExample:\nUser: “Create Honda car image” → Route to Image Agent.\n\n9️⃣ X (Twitter) Post Creation\n\nIf the request is to create a post for X / Twitter:\n\nsend the query to X Agent Tool in folowing format\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -496,
+        96
+      ],
+      "id": "8ba533c9-d651-416f-931b-dedd450730be",
+      "name": "Personal Assistant"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        336
+      ],
+      "id": "0974aa15-77a7-4c06-8286-9886d9727829",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "X7dOpZAVmp1fuWub",
+          "mode": "list",
+          "cachedResultName": "Workflows — Email Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -368,
+        336
+      ],
+      "id": "d8b83e41-a743-4f1f-b250-8a659ad86d7c",
+      "name": "Email Agent"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "yiX4rMrkIJn3FOmg",
+          "mode": "list",
+          "cachedResultName": "Workflows — Contact Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        336
+      ],
+      "id": "1db5d61e-2d74-40df-b4d4-6b11f7d857af",
+      "name": "Contact Agent"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ZhFsDf5qgwDi5PRt",
+          "mode": "list",
+          "cachedResultName": "Workflows — Calendar Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        336
+      ],
+      "id": "240bcfe4-77a0-47ef-a451-4fe239a2268e",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"api_key\": \"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\",\n    \"query\": \"{searchTerm}\",\n    \"search_depth\": \"basic\",\n    \"include_answer\": true,\n    \"topic\": \"news\",\n    \"include_raw_content\": true,\n    \"max_results\": 3\n} ",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "searchTerm",
+              "description": "What the user has requested to search the internet for",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        336
+      ],
+      "id": "76bfb19f-5f03-4246-b0b9-5a50b8549447",
+      "name": "Tavily"
+    },
+    {
+      "parameters": {
+        "person": "vhs1lVXoPZ",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedInTool",
+      "typeVersion": 1,
+      "position": [
+        0,
+        336
+      ],
+      "id": "e30e7944-ddca-4ba6-9554-45e60eef6611",
+      "name": "linkedin",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "tu98bdG8dL1t7&^Thboli8UT",
+          "name": "LinkedIn Personal account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "QgubpMpaulev9XWX",
+          "mode": "list",
+          "cachedResultName": "Workflows — Image Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        336
+      ],
+      "id": "ae92e579-c0b1-4327-b7b6-c92b0516d2ca",
+      "name": "Image Agent"
+    },
+    {
+      "parameters": {
+        "text": "={{ $fromAI('Text', ``, 'string') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.twitterTool",
+      "typeVersion": 2,
+      "position": [
+        416,
+        336
+      ],
+      "id": "a97d33a4-10cc-472c-a969-d41cb7e99686",
+      "name": "X Agent Node",
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "hibaC1Gi88ElxW2o",
+          "name": "X account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "wbXrpKJMT5jlD5Zf",
+          "mode": "list",
+          "cachedResultName": "Workflows — X Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        336
+      ],
+      "id": "5d83b72e-d383-49bf-bcb7-6cc951683bbc",
+      "name": "X Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personal Assistant": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "linkedin": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Agent Node": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "X Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "108a9af1-2d7e-4972-9546-14c68824655b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e4f91be7e8b0224c0bb7b480ed50125789d11b2b2ff9873f895c36a04da3a00b"
+  },
+  "id": "23zBFUFracYFD7kX",
+  "tags": []
+}
