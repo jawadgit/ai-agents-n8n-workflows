@@ -4,6 +4,8 @@
 - Configure WhatsApp Business via Meta 
 - Run the workflow and see the result 
 - See youtube for details https://youtu.be/6iCQcbGTfbY
+
+# Personal Assistant Automation
 - Accepts incoming webhook requests as user queries (text or voice)
 - Uses OpenAI GPT-4 Turbo as the reasoning engine to decide the correct tool/action
 - Routes requests through a structured agent system with mandatory contact lookup, decision checkpoints, and tool orchestration
@@ -15,6 +17,7 @@
 - Image Agent – Generates or edits images and videos
 - X/Twitter Agent – Posts content to X/Twitter
 - Think Tool – Acts as a reasoning checkpoint before final action
+- LInk : https://github.com/jawadgit/ai-agents-n8n-workflows/blob/master/Personal_Assistant.json
 
 # Unlimited Blog Automation
 - Import `Blog_Automation.json` and `Image_Automation.json` file into your n8n portal

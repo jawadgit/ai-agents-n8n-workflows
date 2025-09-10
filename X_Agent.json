@@ -1,0 +1,283 @@
+{
+  "name": "jawad 365 X Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Post is published on X successfully",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        96
+      ],
+      "id": "a4c989f0-3c39-49b0-bc84-cacf5fc74ae0",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "gpt-4-turbo"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        368
+      ],
+      "id": "20006717-a7d9-4ce1-8438-dc05d6810c92",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "BtnSPiglX9etRCup",
+          "name": "365 Global OpenAi Key"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        368
+      ],
+      "id": "47415629-200c-4d40-b127-b0f79600e31e",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"api_key\": \"tvly-dev-44vlqziLXVD&^%T&^KJbnnlknf58N1nJIUbCA2D0732qvxSOX\",\n    \"query\": \"{searchTerm}\",\n    \"search_depth\": \"basic\",\n    \"include_answer\": true,\n    \"topic\": \"news\",\n    \"include_raw_content\": true,\n    \"max_results\": 3\n} ",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "searchTerm",
+              "description": "What the user has requested to search the internet for",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -352,
+        368
+      ],
+      "id": "4ea7dabd-ddba-4c35-9223-debf1775421b",
+      "name": "Tavily"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "p6JfoMnkniasfcsdvgKfV1kJ",
+          "mode": "list",
+          "cachedResultName": "Workflows — jawad  365 X Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "data": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('data', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "data"
+          ],
+          "schema": [
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        560
+      ],
+      "id": "ebf645fb-a401-400a-948e-fcdbe49cc039",
+      "name": "X Agent",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "let text = $json.text || $json.answer || $json.data || $json.output;\n\nif (typeof text === 'object') {\n  text = text.output || JSON.stringify(text);\n}\n\nreturn { json: { output: text } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        96
+      ],
+      "id": "21ed25e7-a763-4826-be13-63826e06f63f",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.output }}\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        240,
+        96
+      ],
+      "id": "8ee500d6-5630-4896-a973-faf744cce1e9",
+      "name": "Create Tweet",
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "hibaC1Gi88ElxW2o",
+          "name": "jawad 365 X account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -672,
+        96
+      ],
+      "id": "e0d803aa-1fa5-4245-98ae-fdec4ad81deb",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are an expert X / Twitter Post Assistant.  \nUser will send you a query. Your job is to follow strictly:\n1. Use Tavily to gather updated information about the topic mentioned in query.\n2. Create a Twitter post that should not exceed 200 letters.\n3. Dont put any hashtags.\n4. dont put icons.\n\n## Output Format\nReturn your response ONLY as a JSON object in this exact format:\n{\n  \"output\": \"<your tweet text>\"\n}\n\nCurrent date/time: {{ $now }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -496,
+        96
+      ],
+      "id": "de18f19c-70ba-4557-8560-02d4a5c1a827",
+      "name": "X Assistant"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "X Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "X Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "X Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Agent": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Create Tweet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tweet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "X Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X Assistant": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4a9b63dd-c40c-4393-95d6-955c0c183711",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e4f91be7e8b0224c0bb7b480ed50125789d11b2dfgbhdefgasb2ff9873f895c36a04da3a00b"
+  },
+  "id": "wbXrpKJMT5jlD5Zf",
+  "tags": []
+}

@@ -1,0 +1,226 @@
+{
+  "name": "Rick 365 Email Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "gpt-4-turbo",
+        "options": {}
+      },
+      "id": "b55baa98-4cc1-4482-80f7-69a3818c35df",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        272
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "BtnSPiglX9etRCup",
+          "name": "365 Global OpenAi Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7ab380a2-a8d3-421c-ab4e-748ea8fb7904",
+              "name": "response",
+              "value": "Unable to perform task. Please try again.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a2be2ebd-88d2-4f28-9725-8fbe9fcafea2",
+      "name": "Try Again",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39c2f302-03be-4464-a17a-d7cc481d6d44",
+              "name": "=response",
+              "value": "={{$json.output}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "78d55634-d3b0-4189-a65d-28f6e4f651a5",
+      "name": "Success",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=Overview\nYou are an email management assistant.\n\nSending an Email\nWhen asked to send an email, you must:\n\nExtract the recipient's email, subject, and body from the request.\n\nCall the \"Send Email\" tool using those extracted values.\n\nReturn the extracted values in this exact JSON format so other nodes can use them:\n\n{\n  \"emailAddress\": \"recipient@example.com\",\n  \"emailSubject\": \"Subject here\",\n  \"emailBody\": \"Body text here\"\n}\n\nRules for Sending Email:\n\nDo not include any text outside the JSON object.\n\nemailAddress must only contain the email (no name).\n\nemailSubject is short and descriptive.\n\nemailBody is only the message content.\n\nAlways call the \"Send Email\" tool after extracting details.\n\nGetting Emails\nA. Get Today’s Emails for rock@agents.com\nIf the request is to get today’s emails (no specific person mentioned):\n\nCall the \"Get Emails\" tool.\n\nFilter: emailAddress = jawad@gmail.com, date = today, status = unread.\n\nOnly return From and Subject fields.\n\nB. Get Today’s Emails from a Specific Person\nIf the request is to get today’s emails from a specific person:\n\nUse contact lookup from the previous node to get the sender’s email.\n\nCall the \"Get Emails\" tool.\n\nFilter: emailAddress = [person’s email], date = today, status = unread.\n\nOnly return From and Subject fields.\n\nIf no unread emails → respond: \"No unread mail from this sender today.\"\n\nEmail Response Formatting\nWhen the \"Get Emails\" tool returns a list in this format:\n\nHere are the unread emails for today:\n\n1. **From**: The Neuron <theneuron@newsletter.theneurondaily.com>\n   - **Subject**: 😺 700M users vs OpenAI\n\n2. **From**: Ruben Hassid <ruben@substack.com>\n   - **Subject**: How to go from 0 to 10000 followers on Linkedin, with AI.\n\n...\nNo other text, no “Here are the unread emails…” header.\n\nEmail Management Tools\nSend Email → Send new email messages.\n\nGet Emails → Retrieve and filter emails.\n\nFinal Notes\nCurrent date/time: {{ $now }}"
+        }
+      },
+      "id": "8dde2ef4-db33-44c3-85b5-cf74e1fcc960",
+      "name": "Email Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        -608,
+        80
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"emailAddress\") }}",
+        "subject": "={{ $fromAI(\"subject\") }}",
+        "message": "={{ $fromAI(\"emailBody\") }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -416,
+        320
+      ],
+      "id": "5c19c964-a483-46bc-9560-2fe492af7061",
+      "name": "Send Email",
+      "webhookId": "86c8c4b1-13bb-4ebe-acb9-30e1d7082d55",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ih7tcNHYGY1OUC2c",
+          "name": "Rick 365 Email Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -848,
+        80
+      ],
+      "id": "e792af9b-0a90-4aa9-b330-faea9180da32",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 5,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -304,
+        320
+      ],
+      "id": "57d4a366-8455-469b-87b2-0cc684849575",
+      "name": "Get Emails",
+      "webhookId": "1475e42f-5d2a-4051-810d-79b23998845b",
+      "notesInFlow": false,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ih7tcNHYGY1OUC2c",
+          "name": "Rick 365 Email Account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "main": [
+        [
+          {
+            "node": "Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Try Again",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Emails": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5bd4ab63-cccf-4371-9c3c-69c6fd6881aa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e4f91be7e8b0224c0bb7b480ed50125789d11b2b2ff9873f895c36a04da3a00b"
+  },
+  "id": "X7dOpZAVmp1fuWub",
+  "tags": []
+}
